@@ -8,6 +8,50 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    """
+    Register a new user.
+    ---
+    tags:
+      - Auth
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required: [username, email, password]
+          properties:
+            username:
+              type: string
+              example: johndoe
+            email:
+              type: string
+              example: john@example.com
+            password:
+              type: string
+              example: secret123
+    responses:
+      201:
+        description: User created successfully
+        schema:
+          type: object
+          properties:
+            token:
+              type: string
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                username:
+                  type: string
+                email:
+                  type: string
+      400:
+        description: Missing required fields
+      409:
+        description: Email or username already taken
+    """
     data = request.get_json()
     if not data or not all(k in data for k in ['username', 'email', 'password']):
         return jsonify({'error': 'username, email, and password are required'}), 400
@@ -28,6 +72,47 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    """
+    Login and receive a JWT token.
+    ---
+    tags:
+      - Auth
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required: [email, password]
+          properties:
+            email:
+              type: string
+              example: john@example.com
+            password:
+              type: string
+              example: secret123
+    responses:
+      200:
+        description: Login successful
+        schema:
+          type: object
+          properties:
+            token:
+              type: string
+            user:
+              type: object
+              properties:
+                id:
+                  type: integer
+                username:
+                  type: string
+                email:
+                  type: string
+      400:
+        description: Missing required fields
+      401:
+        description: Invalid credentials
+    """
     data = request.get_json()
     if not data or not all(k in data for k in ['email', 'password']):
         return jsonify({'error': 'email and password are required'}), 400

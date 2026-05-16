@@ -12,6 +12,36 @@ VALID_PRIORITIES = {'low', 'medium', 'high'}
 @tasks_bp.route('', methods=['GET'])
 @jwt_required()
 def get_tasks():
+    """
+    List all tasks for the authenticated user.
+    ---
+    tags:
+      - Tasks
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: query
+        name: status
+        type: string
+        enum: [todo, in_progress, done]
+      - in: query
+        name: priority
+        type: string
+        enum: [low, medium, high]
+      - in: query
+        name: page
+        type: integer
+        default: 1
+      - in: query
+        name: per_page
+        type: integer
+        default: 10
+    responses:
+      200:
+        description: Paginated list of tasks
+      401:
+        description: Missing or invalid token
+    """
     user_id = int(get_jwt_identity())
     query = Task.query.filter_by(user_id=user_id)
 
@@ -37,6 +67,43 @@ def get_tasks():
 @tasks_bp.route('', methods=['POST'])
 @jwt_required()
 def create_task():
+    """
+    Create a new task.
+    ---
+    tags:
+      - Tasks
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required: [title]
+          properties:
+            title:
+              type: string
+              example: Build portfolio site
+            description:
+              type: string
+              example: Set up Next.js and deploy to Vercel
+            status:
+              type: string
+              enum: [todo, in_progress, done]
+              default: todo
+            priority:
+              type: string
+              enum: [low, medium, high]
+              default: medium
+    responses:
+      201:
+        description: Task created
+      400:
+        description: Missing or invalid fields
+      401:
+        description: Missing or invalid token
+    """
     user_id = int(get_jwt_identity())
     data = request.get_json()
     if not data or not data.get('title'):
@@ -64,6 +131,26 @@ def create_task():
 @tasks_bp.route('/<int:task_id>', methods=['GET'])
 @jwt_required()
 def get_task(task_id):
+    """
+    Get a single task by ID.
+    ---
+    tags:
+      - Tasks
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: task_id
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Task details
+      401:
+        description: Missing or invalid token
+      404:
+        description: Task not found
+    """
     user_id = int(get_jwt_identity())
     task = Task.query.filter_by(id=task_id, user_id=user_id).first_or_404()
     return jsonify(task.to_dict())
@@ -72,6 +159,43 @@ def get_task(task_id):
 @tasks_bp.route('/<int:task_id>', methods=['PUT'])
 @jwt_required()
 def update_task(task_id):
+    """
+    Update a task.
+    ---
+    tags:
+      - Tasks
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: task_id
+        type: integer
+        required: true
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            status:
+              type: string
+              enum: [todo, in_progress, done]
+            priority:
+              type: string
+              enum: [low, medium, high]
+    responses:
+      200:
+        description: Updated task
+      400:
+        description: Invalid field values
+      401:
+        description: Missing or invalid token
+      404:
+        description: Task not found
+    """
     user_id = int(get_jwt_identity())
     task = Task.query.filter_by(id=task_id, user_id=user_id).first_or_404()
     data = request.get_json() or {}
@@ -96,6 +220,26 @@ def update_task(task_id):
 @tasks_bp.route('/<int:task_id>', methods=['DELETE'])
 @jwt_required()
 def delete_task(task_id):
+    """
+    Delete a task.
+    ---
+    tags:
+      - Tasks
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: task_id
+        type: integer
+        required: true
+    responses:
+      204:
+        description: Task deleted
+      401:
+        description: Missing or invalid token
+      404:
+        description: Task not found
+    """
     user_id = int(get_jwt_identity())
     task = Task.query.filter_by(id=task_id, user_id=user_id).first_or_404()
     db.session.delete(task)
