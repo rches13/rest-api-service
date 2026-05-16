@@ -1,6 +1,6 @@
 # REST API Service
 
-A scalable RESTful API for task management built with Flask, JWT authentication, and PostgreSQL. Containerised with Docker and deployed with a GitHub Actions CI/CD pipeline.
+A scalable RESTful API for task management built with Flask, JWT authentication, and PostgreSQL. Includes an interactive Swagger UI, Docker support, and a GitHub Actions CI/CD pipeline.
 
 ## Features
 
@@ -8,6 +8,7 @@ A scalable RESTful API for task management built with Flask, JWT authentication,
 - Full CRUD on tasks with per-user data isolation
 - Filter tasks by status and priority
 - Pagination support
+- Interactive Swagger UI for testing the API in the browser
 - Dockerised for local development and production deployment
 - GitHub Actions CI runs the test suite on every push
 
@@ -16,9 +17,20 @@ A scalable RESTful API for task management built with Flask, JWT authentication,
 - **Python / Flask** — application framework
 - **Flask-JWT-Extended** — authentication
 - **SQLAlchemy + PostgreSQL** — ORM and database
+- **Flasgger** — Swagger UI / OpenAPI docs
 - **pytest** — test suite (14 tests)
 - **Docker + docker-compose** — containerisation
 - **GitHub Actions** — CI/CD pipeline
+
+## Interactive Docs (Swagger UI)
+
+Once the server is running, open **`http://localhost:5000/docs/`** in your browser.
+
+From there you can:
+1. Use **POST /api/auth/register** to create an account
+2. Copy the `token` from the response
+3. Click **Authorize** (top right) and enter `Bearer <your_token>`
+4. Test every endpoint directly in the browser — no curl or Postman needed
 
 ## API Endpoints
 
@@ -41,13 +53,13 @@ A scalable RESTful API for task management built with Flask, JWT authentication,
 
 ## Getting Started
 
-### Run with Docker
+### Run with Docker (recommended)
 
 ```bash
 docker-compose up --build
 ```
 
-The API will be available at `http://localhost:5000`.
+The API will be available at `http://localhost:5000` and the Swagger UI at `http://localhost:5000/docs/`.
 
 ### Run locally
 
@@ -90,6 +102,10 @@ curl -X POST http://localhost:5000/api/tasks \
 
 # Get all tasks
 curl http://localhost:5000/api/tasks \
+  -H "Authorization: Bearer <token>"
+
+# Filter by status
+curl "http://localhost:5000/api/tasks?status=in_progress" \
   -H "Authorization: Bearer <token>"
 ```
 
