@@ -39,4 +39,7 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
 
+    with app.app_context():
+        db.create_all()
+
     return app
